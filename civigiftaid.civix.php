@@ -96,10 +96,10 @@ function _civigiftaid_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) 
 }
 
 function _civigiftaid_civix_upgrader() {
-  if (!file_exists(__DIR__.'//Upgrader.php')) {
+  if (!file_exists(__DIR__.'/CRM/Civigiftaid/Upgrader.php')) {
     return NULL;
   } else {
-    return _Upgrader_Base::instance();
+    return CRM_Civigiftaid_Upgrader_Base::instance();
   }
 }
 
@@ -151,7 +151,7 @@ function _civigiftaid_civix_civicrm_managed(&$entities) {
     $es = include $file;
     foreach ($es as $e) {
       if (empty($e['module'])) {
-        $e['module'] = 'uk.co.compucorp.civicrm.giftaid';
+        $e['module'] = 'uk.co.compucorp.civicrm.civigiftaid';
       }
       $entities[] = $e;
     }
