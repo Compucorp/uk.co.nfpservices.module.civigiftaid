@@ -62,9 +62,11 @@ abstract class CRM_Civigiftaid_Utils_Hook {
         return self::$_singleton;
     }
 
-    abstract function invoke( $numParams,
-                              &$arg1, &$arg2, &$arg3, &$arg4, &$arg5,
-                              $fnSuffix );
+    abstract function invoke($numParams,
+      &$arg1, &$arg2, &$arg3, &$arg4, &$arg5, &$arg6,
+      $fnSuffix
+    );
+                            
 
     /**
      * This hook allows filtering contributions for gift-aid
@@ -76,7 +78,7 @@ abstract class CRM_Civigiftaid_Utils_Hook {
      * @access public
      */
     static function giftAidEligible( &$isEligible, $contactID, $date = null, $contributionID = null ) {
-		return self::singleton( )->invoke( 4, $isEligible, $contactID, $date, $contributionID, self::$_nullObject, 'civicrm_giftAidEligible' );
+		return self::singleton( )->invoke( 4, $isEligible, $contactID, $date, $contributionID, self::$_nullObject, self::$_nullObject, 'civicrm_giftAidEligible' );
     }
 
     /**
@@ -86,7 +88,7 @@ abstract class CRM_Civigiftaid_Utils_Hook {
      * @access public
      */
     static function batchContributions( $batchID, $contributionsAdded ) {
-		return self::singleton( )->invoke( 2, $batchID, $contributionsAdded, self::$_nullObject, self::$_nullObject, self::$_nullObject, 'civicrm_batchContributions' );
+		return self::singleton( )->invoke( 2, $batchID, $contributionsAdded, self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject, 'civicrm_batchContributions' );
     }
 
     /**
@@ -97,6 +99,6 @@ abstract class CRM_Civigiftaid_Utils_Hook {
      * @access public
      */
     static function alterDeclarationQuery( &$query, &$queryParams ) {
-		return self::singleton( )->invoke( 2, $query, $queryParams, self::$_nullObject, self::$_nullObject, self::$_nullObject, 'civicrm_alterDeclarationQuery' );
+		return self::singleton( )->invoke( 2, $query, $queryParams, self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject, 'civicrm_alterDeclarationQuery' );
     }
 }
