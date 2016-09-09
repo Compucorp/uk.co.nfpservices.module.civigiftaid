@@ -1,7 +1,7 @@
 #UK GiftAid Extension for CiviCRM
 
 ###Install GiftAid Extension
-See [Here](http://wiki.civicrm.org/confluence/display/CRMDOC/Extensions"CiviCRM Extensions Installation") for full instructions and information on how to set and configure extensions
+See [Here](https://wiki.civicrm.org/confluence/display/CRMDOC/Extensions) for full instructions and information on how to set and configure extensions
 
 ###Upgrade GiftAid Extension
 These instructions assume that you are only upgrading the Gift Aid module from v2.x to higer and not upgrading from v1.0 and are running version 4.4.x or higher CiviCRM.
