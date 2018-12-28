@@ -201,5 +201,6 @@
         <li>Related Contact's gift aid declaration does not cover the contribution date</li>
     </ol>
 
-    {$form.buttons.html}
+    <div class="crm-submit-buttons">&nbsp;&nbsp;&nbsp;&nbsp;{$form.buttons._qf_AddToBatch_next.html}&nbsp;{$form.buttons._qf_AddToBatch_back.html}&nbsp;<a class="button" href="{$revalidateURL}">{ts}Re Validate{/ts}</a>
+    </div>
 </div>

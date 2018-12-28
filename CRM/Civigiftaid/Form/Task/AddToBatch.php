@@ -53,9 +53,15 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
   function preProcess() {
     parent::preProcess();
 
-    require_once 'CRM/Civigiftaid/Utils/Contribution.php';
-    list($total, $added, $alreadyAdded, $notValid) =
-      CRM_Civigiftaid_Utils_Contribution::validateContributionToBatch($this->_contributionIds);
+    $isStatsDone = CRM_Utils_Request::retrieve('processed', 'Boolean', $this, FALSE, 0);
+    if (empty($isStatsDone)) {
+      $runner = $this->getRunner($this->_contributionIds);
+      if ($runner) {
+        $runner->runAllViaWeb();
+      }
+    }
+    list( $total, $added, $alreadyAdded, $notValid ) = $this->getValidationStats();
+
     $this->assign('selectedContributions', $total);
     $this->assign('totalAddedContributions', count($added));
     $this->assign('alreadyAddedContributions', count($alreadyAdded));
@@ -114,6 +120,8 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     $this->setDefaults($defaults);
 
     $this->addDefaultButtons(ts('Add to batch'));
+    $revalidateUrl = CRM_Utils_System::url(CRM_Utils_System::currentPath(), "_qf_AddToBatch_display=1&qfKey={$this->controller->_key}&processed=0", FALSE, NULL, FALSE);
+    $this->assign('revalidateURL', $revalidateUrl);
   }
 
   /**
@@ -195,4 +203,123 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     $transaction->commit();
     CRM_Core_Session::setStatus($status);
   }//end of function
+
+  /**
+   * Build a queue of tasks by dividing contributions in sets.
+   */
+  public function getRunner($contributionIds) {
+    $queue = CRM_Queue_Service::singleton()->create(array(
+      'name'  => 'ADD_TO_GIFTAID',
+      'type'  => 'Sql',
+      'reset' => TRUE,
+    ));
+    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
+    $total = count($contributionIds);
+    $batchLimit = 10;
+    for ($i = 0; $i < ceil($total/$batchLimit); $i++) {
+      $start = $i * $batchLimit;
+      $contribIds = array_slice($contributionIds, $start, $batchLimit, TRUE);
+      $task  = new CRM_Queue_Task(
+        array ('CRM_Civigiftaid_Form_Task_AddToBatch', 'validateContributionToBatchLimit'),
+        array($contribIds, $qfKey),
+        "Validated " . $i*$batchLimit . " contributions out of " . $total
+      );
+      $queue->createItem($task);
+    }
+    // Setup the Runner
+    $url = CRM_Utils_System::url(CRM_Utils_System::currentPath(), "_qf_AddToBatch_display=1&qfKey={$this->controller->_key}&processed=1", FALSE, NULL, FALSE);
+    $runner = new CRM_Queue_Runner(array(
+      'title' => ts('Validating Contributions..'),
+      'queue' => $queue,
+      'errorMode'=> CRM_Queue_Runner::ERROR_ABORT,
+      'onEndUrl' => $url
+    ));
+    // reset stats
+    self::resetValidationStats($qfKey);
+
+    return $runner;
+  }
+
+  /**
+   * Carry out batch validations.
+   *
+   * @param \CRM_Queue_TaskContext $ctx
+   * @param array $contributionIds
+   *
+   * @return int
+   */
+  static function validateContributionToBatchLimit(CRM_Queue_TaskContext $ctx, $contributionIds, $qfKey)  {
+    list( $total, $added, $alreadyAdded, $notValid ) =
+      CRM_Civigiftaid_Utils_Contribution::validateContributionToBatch($contributionIds);
+    $cache = self::getCache();
+    $key   = self::getCacheKey($qfKey);
+    $stats = $cache->get($key);
+    if (empty($stats)) {
+      $stats = array(
+        'total'        => $total,
+        'added'        => $added,
+        'alreadyAdded' => $alreadyAdded,
+        'notValid'     => $notValid,
+      );
+      $cache->set($key, $stats);
+    } else {
+      $stats = array(
+        'total'        => $stats['total'] + $total,
+        'added'        => array_merge($stats['added'], $added),
+        'alreadyAdded' => array_merge($stats['alreadyAdded'], $alreadyAdded),
+        'notValid'     => array_merge($stats['notValid'], $notValid),
+      );
+      $cache->set($key, $stats);
+    }
+    return CRM_Queue_Task::TASK_SUCCESS;
+  }
+
+  /**
+   * Fetch cache object.
+   *
+   * @return object CRM_Utils_Cache_SqlGroup
+   */
+  static function getCache() {
+    $cache   = new CRM_Utils_Cache_SqlGroup(array( 
+      'group' => 'Civigiftaid',
+    ));
+    return $cache;
+  }
+
+  /**
+   * Fetch cache key.
+   *
+   * @return string cache key
+   */
+  static function getCacheKey($qfKey) {
+    return "civigiftaid_addtobatch_stats_{$qfKey}";
+  }
+
+  /**
+   * Get validation stats from cache.
+   *
+   * @return array
+   */
+  public function getValidationStats() {
+    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
+    $cache = self::getCache();
+    $stats = $cache->get(self::getCacheKey($qfKey));
+    return array(
+      empty($stats['total']) ? 0 : $stats['total'],
+      $stats['added'],
+      $stats['alreadyAdded'],
+      $stats['notValid']
+    );
+  }
+
+  /**
+   * Reset validation stats for giftaid
+   *
+   * @return array
+   */
+  static function resetValidationStats($qfKey) {
+    $cache = self::getCache();
+    $key   = self::getCacheKey($qfKey);
+    $cache->set($key, CRM_Core_DAO::$_nullArray);
+  }
 }

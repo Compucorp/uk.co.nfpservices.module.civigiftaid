@@ -423,6 +423,7 @@ class CRM_Civigiftaid_Utils_Contribution {
       }
     }
 
+    CRM_Core_DAO::freeResult();
     return array(
       count($contributionIDs),
       $contributionsAdded,
