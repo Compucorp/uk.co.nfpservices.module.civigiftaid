@@ -61,6 +61,10 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
       }
     }
     list( $total, $added, $alreadyAdded, $notValid ) = $this->getValidationStats();
+    if (in_array($this->controller->getButtonName(), array('_qf_AddToBatch_back', '_qf_AddToBatch_next'))) {
+      // reset the flag, so it's revalidated next time.
+      $this->set('processed', 0);
+    }
 
     $this->assign('selectedContributions', $total);
     $this->assign('totalAddedContributions', count($added));
@@ -120,8 +124,6 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     $this->setDefaults($defaults);
 
     $this->addDefaultButtons(ts('Add to batch'));
-    $revalidateUrl = CRM_Utils_System::url(CRM_Utils_System::currentPath(), "_qf_AddToBatch_display=1&qfKey={$this->controller->_key}&processed=0", FALSE, NULL, FALSE);
-    $this->assign('revalidateURL', $revalidateUrl);
   }
 
   /**
