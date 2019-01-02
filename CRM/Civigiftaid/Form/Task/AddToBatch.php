@@ -42,6 +42,8 @@ require_once 'CRM/Utils/String.php';
 
 class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
 
+  const VALIDATION_QUEUE_BATCH_LIMIT = 10;
+
   protected $_id = NULL;
 
   /**
@@ -209,7 +211,7 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
   /**
    * Build a queue of tasks by dividing contributions in sets.
    */
-  public function getRunner($contributionIds) {
+  function getRunner($contributionIds) {
     $queue = CRM_Queue_Service::singleton()->create(array(
       'name'  => 'ADD_TO_GIFTAID',
       'type'  => 'Sql',
@@ -217,7 +219,7 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     ));
     $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
     $total = count($contributionIds);
-    $batchLimit = 10;
+    $batchLimit = self::VALIDATION_QUEUE_BATCH_LIMIT;
     for ($i = 0; $i < ceil($total/$batchLimit); $i++) {
       $start = $i * $batchLimit;
       $contribIds = array_slice($contributionIds, $start, $batchLimit, TRUE);
@@ -240,6 +242,34 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     self::resetValidationStats($qfKey);
 
     return $runner;
+  }
+
+  /**
+   * Get validation stats from cache.
+   *
+   * @return array
+   */
+  function getValidationStats() {
+    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
+    $cache = self::getCache();
+    $stats = $cache->get(self::getCacheKey($qfKey));
+    return array(
+      empty($stats['total']) ? 0 : $stats['total'],
+      $stats['added'],
+      $stats['alreadyAdded'],
+      $stats['notValid']
+    );
+  }
+
+  /**
+   * Reset validation stats for giftaid
+   *
+   * @return array
+   */
+  static function resetValidationStats($qfKey) {
+    $cache = self::getCache();
+    $key   = self::getCacheKey($qfKey);
+    $cache->set($key, CRM_Core_DAO::$_nullArray);
   }
 
   /**
@@ -297,31 +327,4 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     return "civigiftaid_addtobatch_stats_{$qfKey}";
   }
 
-  /**
-   * Get validation stats from cache.
-   *
-   * @return array
-   */
-  public function getValidationStats() {
-    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
-    $cache = self::getCache();
-    $stats = $cache->get(self::getCacheKey($qfKey));
-    return array(
-      empty($stats['total']) ? 0 : $stats['total'],
-      $stats['added'],
-      $stats['alreadyAdded'],
-      $stats['notValid']
-    );
-  }
-
-  /**
-   * Reset validation stats for giftaid
-   *
-   * @return array
-   */
-  static function resetValidationStats($qfKey) {
-    $cache = self::getCache();
-    $key   = self::getCacheKey($qfKey);
-    $cache->set($key, CRM_Core_DAO::$_nullArray);
-  }
 }
