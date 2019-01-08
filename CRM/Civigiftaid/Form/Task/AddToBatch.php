@@ -73,25 +73,22 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
     $this->assign('alreadyAddedContributions', count($alreadyAdded));
     $this->assign('notValidContributions', count($notValid));
 
-    // get details of contribution that will be added to this batch.
-    $contributionsAddedRows =
-      CRM_Civigiftaid_Utils_Contribution::getContributionDetails($added);
-    $this->assign('contributionsAddedRows', $contributionsAddedRows);
+    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
 
-    // get details of contribution thatare already added to this batch.
-    $contributionsAlreadyAddedRows = array();
-    $contributionsAlreadyAddedRows =
-      CRM_Civigiftaid_Utils_Contribution::getContributionDetails($alreadyAdded);
-    $this->assign(
-      'contributionsAlreadyAddedRows',
-      $contributionsAlreadyAddedRows
-    );
+    // URL to view contributions that will be added to this batch
+    $tobeAddedUrlParams = 'status=tobeadded&qfKey='.$qfKey;
+    $contributionsTobeAddedUrl = CRM_Utils_System::url('civicrm/addtobatch/summary', $tobeAddedUrlParams);
+    $this->assign('contributionsTobeAddedUrl', $contributionsTobeAddedUrl );
 
-    // get details of contribution that are not valid for giftaid
-    $contributionsNotValid = array();
-    $contributionsNotValid =
-      CRM_Civigiftaid_Utils_Contribution::getContributionDetails($notValid);
-    $this->assign('contributionsNotValid', $contributionsNotValid);
+    // URL to view contributions that are already added to this batch
+    $alreadyAddedUrlParams = 'status=alreadyadded&qfKey='.$qfKey;
+    $contributionsAlreadyAddedUrl = CRM_Utils_System::url('civicrm/addtobatch/summary', $alreadyAddedUrlParams);
+    $this->assign('contributionsAlreadyAddedUrl', $contributionsAlreadyAddedUrl );
+
+    // URL to view contributions that are not valid for giftaid
+    $invalidUrlParams = 'status=invalid&qfKey='.$qfKey;
+    $contributionsInvalidUrl = CRM_Utils_System::url('civicrm/addtobatch/summary', $invalidUrlParams);
+    $this->assign('contributionsInvalidUrl', $contributionsInvalidUrl );
   }
 
   /**
@@ -312,7 +309,7 @@ class CRM_Civigiftaid_Form_Task_AddToBatch extends CRM_Contribute_Form_Task {
    * @return object CRM_Utils_Cache_SqlGroup
    */
   static function getCache() {
-    $cache   = new CRM_Utils_Cache_SqlGroup(array( 
+    $cache   = new CRM_Utils_Cache_SqlGroup(array(
       'group' => 'Civigiftaid',
     ));
     return $cache;

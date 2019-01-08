@@ -51,145 +51,46 @@
 
     <h3>{ts}Summary{/ts}</h3>
 
-    <p>Number of selected contributions: {$selectedContributions}</p>
-
-    {if $totalAddedContributions}
-        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
-            <div class="crm-accordion-header">
-                Number of contributions that will be added to this batch: {$totalAddedContributions}
-            </div>
-            <!-- /.crm-accordion-header -->
-            <div class="crm-accordion-body">
-                <table class="selector">
-                    <thead>
-                    <tr>
-                        <th>{ts}Name{/ts}</th>
-                        <th>{ts}Gift Aidable Amount{/ts}</th>
-                        <th>{ts}Total Amount{/ts}</th>
-                        <th>{ts}No of items{/ts}</th>
-                        <th>{ts}Type{/ts}</th>
-                        <th>{ts}Source{/ts}</th>
-                        <th>{ts}Received{/ts}</th>
-                    </tr>
-                    </thead>
-                    {foreach from=$contributionsAddedRows item=row}
-                        <tr class="contribution" data-contribution-id="{$row.contribution_id}">
-                            <td>
-                                <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.display_name}</a>
-                            </td>
-                            <td>{$row.gift_aidable_amount}</td>
-                            <td>{$row.total_amount}</td>
-                            <td>{$row.line_items|@count}</td>
-                            <td>{$row.financial_account}</td>
-                            <td>{$row.source}</td>
-                            <td>{$row.receive_date}</td>
-                        </tr>
-                        <tr class="line-items-container">
-                            <td colspan="7">
-                                {include file="CRM/Civigiftaid/Form/Task/LineItems.tpl" contributionId=$row.contribution_id}
-                            </td>
-                        </tr>
-                    {/foreach}
-                </table>
-            </div>
-            <!-- /.crm-accordion-body -->
-        </div>
-        <!-- /.crm-accordion-wrapper -->
-    {else}
-        {include file="CRM/Civigiftaid/Form/Task/EmptyAccordion.tpl" content="Number of contributions that will be added to this batch: $totalAddedContributions"}
-    {/if}
-    {if $alreadyAddedContributions}
-        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
-            <div class="crm-accordion-header">
-                Number of contributions already in a batch: {$alreadyAddedContributions}
-            </div>
-            <!-- /.crm-accordion-header -->
-            <div class="crm-accordion-body">
-                <table class="selector">
-                    <thead>
-                    <tr>
-                        <th>{ts}Name{/ts}</th>
-                        <th>{ts}Gift Aidable Amount{/ts}</th>
-                        <th>{ts}Total Amount{/ts}</th>
-                        <th>{ts}No of items{/ts}</th>
-                        <th>{ts}Type{/ts}</th>
-                        <th>{ts}Source{/ts}</th>
-                        <th>{ts}Received{/ts}</th>
-                        <th>{ts}Batch{/ts}</th>
-                    </tr>
-                    </thead>
-                    {foreach from=$contributionsAlreadyAddedRows item=row}
-                        <tr class="contribution" data-contribution-id="{$row.contribution_id}">
-                            <td>
-                                <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.display_name}</a>
-                            </td>
-                            <td>{$row.gift_aidable_amount}</td>
-                            <td>{$row.total_amount}</td>
-                            <td>{$row.line_items|@count}</td>
-                            <td>{$row.financial_account}</td>
-                            <td>{$row.source}</td>
-                            <td>{$row.receive_date}</td>
-                            <td>{$row.batch}</td>
-                        </tr>
-                        <tr class="line-items-container">
-                            <td colspan="8">
-                                {include file="CRM/Civigiftaid/Form/Task/LineItems.tpl" contributionId=$row.contribution_id}
-                            </td>
-                        </tr>
-                    {/foreach}
-                </table>
-            </div>
-            <!-- /.crm-accordion-body -->
-        </div>
-        <!-- /.crm-accordion-wrapper -->
-    {else}
-        {include file="CRM/Civigiftaid/Form/Task/EmptyAccordion.tpl" content="Number of contributions already in a batch: $alreadyAddedContributions"}
-    {/if}
-    {if $notValidContributions}
-        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
-            <div class="crm-accordion-header">
-                Number of contributions not valid for gift aid: {$notValidContributions}
-            </div>
-            <!-- /.crm-accordion-header -->
-            <div class="crm-accordion-body">
-                <table class="selector">
-                    <thead>
-                    <tr>
-                        <th>{ts}Name{/ts}</th>
-                        <th>{ts}Gift Aidable Amount{/ts}</th>
-                        <th>{ts}Total Amount{/ts}</th>
-                        <th>{ts}No of items{/ts}</th>
-                        <th>{ts}Type{/ts}</th>
-                        <th>{ts}Source{/ts}</th>
-                        <th>{ts}Received{/ts}</th>
-                    </tr>
-                    </thead>
-                    {foreach from=$contributionsNotValid item=row}
-                        <tr class="contribution" data-contribution-id="{$row.contribution_id}">
-                            <td>
-                                <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.display_name}</a>
-                            </td>
-                            <td>{$row.gift_aidable_amount}</td>
-                            <td>{$row.total_amount}</td>
-                            <td>{$row.line_items|@count}</td>
-                            <td>{$row.financial_account}</td>
-                            <td>{$row.source}</td>
-                            <td>{$row.receive_date}</td>
-                        </tr>
-                        <tr class="line-items-container">
-                            <td colspan="7">
-                                {include file="CRM/Civigiftaid/Form/Task/LineItems.tpl" contributionId=$row.contribution_id}
-                            </td>
-                        </tr>
-                    {/foreach}
-                </table>
-            </div>
-            <!-- /.crm-accordion-body -->
-        </div>
-        <!-- /.crm-accordion-wrapper -->
-    {else}
-        {include file="CRM/Civigiftaid/Form/Task/EmptyAccordion.tpl" content="Number of contributions not valid for gift aid: $notValidContributions"}
-    {/if}
+    <table class="report" style="width: 100%">
+      <tbody>
+        <tr class="columnheader-dark">
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
+          <td><strong>Number of selected contributions:</strong></td>
+          <td colspan="2"><strong>{$selectedContributions}</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Number of contributions that will be added to this batch:</strong></td>
+          <td>{$totalAddedContributions}</td>
+          <td align="center">
+            {if $totalAddedContributions}
+              <a class="crm-popup" href="{$contributionsTobeAddedUrl}" title="To be added to this batch">{ts}view contributions{/ts}</a>
+            {/if}
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Number of contributions already in a batch:</strong></td>
+          <td>{$alreadyAddedContributions}</td>
+          <td align="center">
+            {if $alreadyAddedContributions}
+              <a class="crm-popup" href="{$contributionsAlreadyAddedUrl}" title="Already in a batch">{ts}view contributions{/ts}</a>
+            {/if}
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Number of contributions not valid for gift aid:</strong></td>
+          <td>{$notValidContributions}</td>
+          <td align="center">
+            {if $notValidContributions}
+              <a class="crm-popup" href="{$contributionsInvalidUrl}" title="Not Valid for Giftaids">{ts}view contributions{/ts}</a>
+            {/if}
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <p>{ts}Use this form to submit Gift Aid contributions. Note that this action is irreversible, i.e. you cannot take contributions out of a batch once they have been added.{/ts}</p>
 
