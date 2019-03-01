@@ -95,8 +95,8 @@ class CRM_Civigiftaid_Utils_Contribution {
     );
 
     foreach ($contributionIDs as $contributionID) {
-      //$batchContribution =& new CRM_Core_DAO_EntityBatch( );
-      $batchContribution =& new CRM_Batch_DAO_EntityBatch();
+      //$batchContribution = new CRM_Core_DAO_EntityBatch( );
+      $batchContribution = new CRM_Batch_DAO_EntityBatch();
       $batchContribution->entity_table = 'civicrm_contribution';
       $batchContribution->entity_id = $contributionID;
 
@@ -187,7 +187,7 @@ class CRM_Civigiftaid_Utils_Contribution {
       foreach ($contributions as $contribution) {
         if (!empty($contribution['batch_id'])) {
 
-          $batchContribution =& new CRM_Batch_DAO_EntityBatch();
+          $batchContribution = new CRM_Batch_DAO_EntityBatch();
           $batchContribution->entity_table = 'civicrm_contribution';
           $batchContribution->entity_id = $contribution['contribution_id'];
           $batchContribution->batch_id = $contribution['batch_id'];
@@ -343,7 +343,7 @@ class CRM_Civigiftaid_Utils_Contribution {
 
     foreach ($contributionIDs as $contributionID) {
 
-      $batchContribution =& new CRM_Batch_DAO_EntityBatch();
+      $batchContribution = new CRM_Batch_DAO_EntityBatch();
       $batchContribution->entity_table = 'civicrm_contribution';
       $batchContribution->entity_id = $contributionID;
 
@@ -395,7 +395,7 @@ class CRM_Civigiftaid_Utils_Contribution {
     require_once "CRM/Contribute/BAO/Contribution.php";
 
     foreach ($contributionIDs as $contributionID) {
-      $batchContribution =& new CRM_Batch_DAO_EntityBatch();
+      $batchContribution = new CRM_Batch_DAO_EntityBatch();
       $batchContribution->entity_table = 'civicrm_contribution';
       $batchContribution->entity_id = $contributionID;
 
