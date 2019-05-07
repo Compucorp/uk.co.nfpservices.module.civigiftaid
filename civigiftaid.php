@@ -538,3 +538,162 @@ function _civigiftaid_civicrm_custom_get_address_and_postal_code_format_address(
   return @implode(', ', $tempAddressArray);
 }
 
+/**
+ * Implements hook_civicrm_buildForm().
+ */
+function civigiftaid_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Contribute_Form_Search') {
+    $contributionIdList = CRM_Contribute_Selector_Search::getContributionIdList();
+    if (!empty($contributionIdList)) {
+      $giftAidData = [];
+      $giftAidData[] = _civigiftaid_get_gift_aid_by_currency($contributionIdList, 'GBP');
+      $form->assign('giftAidData', $giftAidData);
+    }
+
+    CRM_Contribute_Selector_Search::clearContributionIdList();
+  }
+}
+
+/**
+ * Generate gift aid data
+ *
+ * @param $contributionIdList
+ *
+ * @param $currencyString
+ *
+ * @return array
+ */
+function _civigiftaid_get_gift_aid_by_currency($contributionIdList, $currencyString) {
+  $estimatedGiftAidAmount = 0;
+  $totalAmount = 0;
+  $batchSize = 50;
+
+  foreach (array_chunk($contributionIdList, $batchSize) as $batch) {
+    $estimatedGiftAidAmount += _civigiftaid_calculate_estimated_gift_aid_amount($batch, $currencyString);
+    $totalAmount += _civigiftaid_calculate_total_amount($batch, $currencyString);
+  }
+
+  $totalAmountIncludingGiftAid = $totalAmount + $estimatedGiftAidAmount;
+
+  return [
+    'estimatedGiftAidAmount' => $estimatedGiftAidAmount,
+    'totalAmountIncludingGiftAid' => $totalAmountIncludingGiftAid,
+    'currencySymbol' => _civigiftaid_get_currency_symbol($currencyString)
+  ];
+}
+
+/**
+ * Calculates total amount including gift aid
+ *
+ * @param $contributionIdList
+ * @param $currencyString
+ *
+ * @return int
+ */
+function _civigiftaid_calculate_total_amount($contributionIdList, $currencyString) {
+  $explodedContributionIdList = implode(',', $contributionIdList);
+
+  $query = "
+    SELECT
+      SUM(conts.total_amount) as total_amount,
+      conts.currency as currency 
+    FROM 
+    (
+      SELECT 
+        civicrm_contribution.total_amount, 
+        civicrm_contribution.currency  
+      FROM civicrm_contact AS contact 
+      LEFT JOIN civicrm_contribution 
+        ON civicrm_contribution.contact_id = contact.id  
+      WHERE  
+        ( civicrm_contribution.is_test = 0 )  
+        AND (contact.is_deleted = 0) 
+        AND civicrm_contribution.id IN({$explodedContributionIdList})
+        AND (contact.is_deleted = 0) 
+        AND contact.is_deleted = 0  
+        AND civicrm_contribution.contribution_status_id = 1  
+        AND civicrm_contribution.currency = %1
+      GROUP BY civicrm_contribution.id
+    ) as conts
+    GROUP BY currency
+  ";
+
+  $dao = CRM_Core_DAO::executeQuery($query, [
+    1 => [$currencyString, 'String'],
+  ]);
+
+  while ($dao->fetch()) {
+    if (!empty($dao->total_amount)) {
+      return round($dao->total_amount, 2);
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * Calculates estimated gift aid amount
+ *
+ * @param $contributionIdList
+ * @param $currencyString
+ *
+ * @return int
+ */
+function _civigiftaid_calculate_estimated_gift_aid_amount($contributionIdList, $currencyString) {
+  $explodedContributionIdList = implode(',', $contributionIdList);
+
+  $query = "
+    SELECT
+      SUM(gift_aid.gift_aid_amount) as estimated_gift_aid_amount
+    FROM civicrm_value_gift_aid_submission AS gift_aid
+    LEFT JOIN civicrm_contribution as contribution
+      ON gift_aid.entity_id = contribution.id
+    WHERE gift_aid.entity_id IN({$explodedContributionIdList})
+      AND gift_aid.gift_aid_amount IS NOT NULL
+      AND contribution.currency = %1
+  ";
+
+  $dao = CRM_Core_DAO::executeQuery($query,[
+    1 => [$currencyString, 'String'],
+  ]);
+
+  while ($dao->fetch()) {
+    if (!empty($dao->estimated_gift_aid_amount)) {
+      return round($dao->estimated_gift_aid_amount, 2);
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * Gets currency symbol by name
+ *
+ * @param $currencyName
+ *
+ * @return string
+ */
+ function _civigiftaid_get_currency_symbol($currencyName) {
+  if (!civicrm_initialize()) {
+    return '(' . $currencyName . ')';
+  }
+
+  $query = "
+    SELECT
+      currency.symbol AS symbol
+    FROM 
+      civicrm_currency AS currency
+    WHERE 
+      currency.name = %1
+    LIMIT 1
+  ";
+
+  $dao = CRM_Core_DAO::executeQuery($query, [
+    1 => [$currencyName, 'String'],
+  ]);
+
+  while ($dao->fetch()) {
+    return $dao->symbol;
+  }
+  return '(' . $currencyName . ')';
+}
