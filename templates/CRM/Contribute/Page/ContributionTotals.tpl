@@ -70,4 +70,28 @@
         {/if}
 
     </table>
+    {* start @custom code. *}
+    {*gift aid amount*}
+    {if $giftAidData}
+        <table class="form-layout-compressed" style="width: 100%;">
+            <tbody>
+            {foreach from=$giftAidData item=giftAid}
+                {if $giftAid.estimatedGiftAidAmount != 0 || $giftAid.totalAmountIncludingGiftAid != 0}
+                    <tr>
+                        <td class="contriTotalLeft left">Estimated gift aid amount</td>
+                        <td class="left">{$giftAid.currencySymbol} {$giftAid.estimatedGiftAidAmount}</td>
+                    </tr>
+                    <tr>
+                        <td class="contriTotalLeft left">Total amount including gift aid</td>
+                        <td class="left">{$giftAid.currencySymbol} {$giftAid.totalAmountIncludingGiftAid}</td>
+                    </tr>
+                    <tr>
+                        <td><p></p></td>
+                    </tr>
+                {/if}
+            {/foreach}
+            </tbody>
+        </table>
+    {/if}
+    {* end @custom code. *}
 {/if}
