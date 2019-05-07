@@ -315,6 +315,23 @@ class CRM_Contribute_Selector_Search extends CRM_Core_Selector_Base implements C
       FALSE,
       $this->_contributionClause
     );
+
+    // start @custom code.
+    $allContributionResult = $this->_query->searchQuery(0, 0, $sort,
+      FALSE, FALSE,
+      FALSE, FALSE,
+      FALSE,
+      $this->_contributionClause
+    );
+
+    $contributionIdList = [];
+    while ($allContributionResult->fetch()) {
+      $contributionIdList[] = $allContributionResult->id;
+    }
+
+    self::setContributionIdList($contributionIdList);
+    // end @custom code.
+
     // process the result of the query
     $rows = array();
 
@@ -647,4 +664,38 @@ class CRM_Contribute_Selector_Search extends CRM_Core_Selector_Base implements C
     return $this->_query->summaryContribution($this->_context);
   }
 
+  // start @custom code.
+  /**
+   * Gets contribution id list
+   *
+   * @return array
+   */
+  public static function getContributionIdList() {
+    $session = CRM_Core_Session::singleton();
+    $contributionIdList = $session->get('contributionIdList');
+
+    return (empty($contributionIdList)) ? [] : $contributionIdList;
+  }
+
+  /**
+   * Sets contribution id list
+   *
+   * @param array $contributionIdList
+   */
+  public static function setContributionIdList($contributionIdList) {
+    if (!empty($contributionIdList)  ) {
+      $session = CRM_Core_Session::singleton();
+      $session->get('contributionIdList');
+      $session->set('contributionIdList', $contributionIdList);
+    }
+  }
+
+  /**
+   * Clears contribution id list
+   */
+  public static function clearContributionIdList() {
+    $session = CRM_Core_Session::singleton();
+    $session->set('contributionIdList', []);
+  }
+  // end @custom code.
 }
