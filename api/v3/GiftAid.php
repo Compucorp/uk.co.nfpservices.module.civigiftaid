@@ -3,13 +3,13 @@
 function civicrm_api3_gift_aid_makepastyearsubmissions($params) {
   // get all contacts with declarations
   $contacts = CRM_Civigiftaid_Utils_GiftAid::getContactsWithDeclarations();
-  
+
   // get current declarations of contacts
   $currentDeclarations = CRM_Civigiftaid_Utils_GiftAid::getCurrentDeclarations($contacts);
 
   // get current declarations which has "past 4 year" option
-  $currentWithPastYearOption = array();
-  $contactsIds = array();
+  $currentWithPastYearOption = [];
+  $contactsIds = [];
   foreach($currentDeclarations as $currentDeclaration) {
     if($currentDeclaration['eligible_for_gift_aid'] == 3){
       $currentWithPastYearOption[] = $currentDeclaration;
@@ -30,6 +30,60 @@ function civicrm_api3_gift_aid_makepastyearsubmissions($params) {
     }
 
   }
-  
+
   return civicrm_api3_create_success(1, $params);
+}
+
+function _civicrm_api3_gift_aid_updateeligiblecontributions_spec($params) {
+  $params['contribution_id']['title'] = 'Contribution ID';
+  $params['contribution_id']['type'] = CRM_Utils_Type::T_INT;
+}
+
+function civicrm_api3_gift_aid_updateeligiblecontributions($params) {
+  $groupID = civicrm_api3('CustomGroup', 'getvalue', [
+    'return' => "id",
+    'name' => "gift_aid",
+  ]);
+  $contributionParams = [
+    'return' => [
+      'id',
+      'contact_id',
+      'contribution_status_id',
+      'receive_date',
+      CRM_Civigiftaid_Utils::getCustomByName('batch_name', $groupID),
+      CRM_Civigiftaid_Utils::getCustomByName('Eligible_for_Gift_Aid', $groupID)
+    ],
+    CRM_Civigiftaid_Utils::getCustomByName('Eligible_for_Gift_Aid', $groupID) => ['IS NULL' => 1],
+    'options' => ['limit' => 0],
+  ];
+  if (!empty($params['contribution_id'])) {
+    $contributionParams['id'] = $params['contribution_id'];
+  }
+  $contributions = civicrm_api3('Contribution', 'get', $contributionParams);
+  if (empty($contributions['count'])) {
+    return civicrm_api3_create_error('No contributions found or all have Eligible flag set!');
+  }
+  $contributions = $contributions['values'];
+
+  $updatedIDs = [];
+  foreach ($contributions as $key => $contribution) {
+    $contact = civicrm_api3('Contact', 'getsingle', [
+      'return' => ["contact_type"],
+      'id' => $contribution['contact_id'],
+    ]);
+    if ($contact['contact_type'] !== 'Individual') {
+      unset($contributions[$key]);
+      continue;
+    }
+    if (!CRM_Civigiftaid_Utils_GiftAid::isEligibleForGiftAid($contribution)) {
+      unset($contributions[$key]);
+      continue;
+    }
+
+    // This must be an eligible contribution - update it
+    // We don't touch batchName
+    CRM_Civigiftaid_Utils_Contribution::updateGiftAidFields($contribution['id'], NULL, CRM_Civigiftaid_Utils_GiftAid::DECLARATION_IS_YES);
+    $updatedIDs[$contribution['id']] = 1;
+  }
+  return civicrm_api3_create_success($updatedIDs, $params, 'gift_aid', 'updateeligiblecontributions');
 }

@@ -350,7 +350,7 @@
     </CustomField>
     <CustomField>
       <name>Amount</name>
-      <label>Amount</label>
+      <label>Eligible Amount</label>
       <data_type>Money</data_type>
       <html_type>Text</html_type>
       <is_required>0</is_required>
