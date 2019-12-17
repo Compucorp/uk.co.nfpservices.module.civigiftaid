@@ -19,12 +19,13 @@
     <email>jamie@compucorp.co.uk</email>
   </maintainer>
   <releaseDate>2019-08-12</releaseDate>
-  <version>3.0.4</version>
+  <version>3.0.5</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>4.6</ver>
     <ver>4.7</ver>
     <ver>5.0</ver>
+    <ver>5.19.4</ver>
   </compatibility>
   <comments>For support, please contact project team on the forums. (http://forum.civicrm.org) or create a new issue on https://github.com/compucorp/uk.co.compucorp.civicrm.giftaid/issues
   </comments>
