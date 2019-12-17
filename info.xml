@@ -19,7 +19,7 @@
     <email>jamie@compucorp.co.uk</email>
   </maintainer>
   <releaseDate>2019-08-12</releaseDate>
-  <version>3.0.5</version>
+  <version>3.1.0</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>4.6</ver>
