@@ -82,6 +82,15 @@ function civigiftaid_civicrm_managed(&$entities) {
 }
 
 /**
+ * Implements hook_civicrm_entityTypes().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
+ */
+function civigiftaid_civix_civicrm_entityTypes(&$entityTypes) {
+  _civigiftaid_civix_civicrm_entityTypes($entityTypes);
+}
+
+/**
  * @param $objectType
  * @param $tasks
  */
