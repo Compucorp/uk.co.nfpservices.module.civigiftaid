@@ -421,13 +421,9 @@ class CRM_Civigiftaid_Upgrader extends CRM_Civigiftaid_Upgrader_Base {
 
     // Set 'Globally Enabled' by default
     $settings->globally_enabled = 1;
-    $settings->financial_types_enabled = array();
+    $settings->financial_types_enabled = [];
 
-    CRM_Core_BAO_Setting::setItem(
-      $settings,
-      'Extension',
-      $this->getExtensionKey() . ':settings'
-    );
+    \Civi::settings()->set($this->getExtensionKey() . ':settings', $settings);
   }
 
   /**
