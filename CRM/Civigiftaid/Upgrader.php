@@ -256,27 +256,26 @@ class CRM_Civigiftaid_Upgrader extends CRM_Civigiftaid_Upgrader_Base {
     // Update custom field type from String to Int
     CRM_Core_DAO::executeQuery("UPDATE civicrm_custom_field SET data_type = 'Int' WHERE name = 'Eligible_for_Gift_Aid'");
 
+
     // Add new option groups and options
-    $og1 = civicrm_api3('OptionGroup', 'create', array(
-      'sequential' => 1,
-      'name' => "eligibility_declaration_options",
-      'title' => "Eligibility Declaration Options",
-      'label' => "Eligibility Declaration Options",
-      'is_active' => 1,
-      'is_reserved' => 1,
-    ));
-
-    $og2 = civicrm_api3('OptionGroup', 'create', array(
-      'sequential' => 1,
-      'name' => "uk_taxpayer_options",
-      'title' => "UK Taxpayer Options",
-      'label' => "UK Taxpayer Options",
-      'is_active' => 1,
-      'is_reserved' => 1
-    ));
-
-    $og1Id = CRM_Utils_Array::value('id', $og1);
-    $og2Id = CRM_Utils_Array::value('id', $og2);
+    $og1Id = CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(
+      [
+        'name' => 'eligibility_declaration_options',
+        'title' => 'Eligibility Declaration Options',
+        'label' => 'Eligibility Declaration Options',
+        'is_active' => 1,
+        'is_reserved' => 1,
+      ]
+    );
+    $og2Id = CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(
+      [
+        'name' => 'uk_taxpayer_options',
+        'title' => 'UK Taxpayer Options',
+        'label' => 'UK Taxpayer Options',
+        'is_active' => 1,
+        'is_reserved' => 1
+      ]
+    );
 
     $optionValues = array (
       array (
@@ -324,7 +323,7 @@ class CRM_Civigiftaid_Upgrader extends CRM_Civigiftaid_Upgrader_Base {
     );
 
     foreach($optionValues as $params) {
-      $result = civicrm_api3('OptionValue', 'create', $params);
+      CRM_Core_BAO_OptionValue::ensureOptionValueExists($params);
     }
 
     $declarationCustomGroupID = CRM_Utils_Array::value('id',civicrm_api('CustomGroup', 'getsingle', array(
@@ -349,12 +348,14 @@ class CRM_Civigiftaid_Upgrader extends CRM_Civigiftaid_Upgrader_Base {
   public function upgrade_3103() {
     $this->log('Applying update 3103');
 
-    $result = civicrm_api3('OptionValue', 'create', [
+    CRM_Core_BAO_OptionValue::ensureOptionValueExists(
+      [
         'option_group_id' => "batch_type",
         'label' => 'Giftaid Batch',
         'name' => 'giftaid_batch',
         'description' => 'Giftaid Batch Type',
-    ]);
+      ]
+    );
 
     return TRUE;
   }
