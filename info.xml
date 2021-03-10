@@ -26,4 +26,7 @@
   </compatibility>
   <comments>For support, please contact project team on the forums. (http://forum.civicrm.org) or create a new issue on https://github.com/compucorp/uk.co.compucorp.civicrm.giftaid/issues
   </comments>
+  <civix>
+    <namespace>CRM/Civigiftaid</namespace>
+  </civix>
 </extension>
