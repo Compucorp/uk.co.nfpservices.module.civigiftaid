@@ -22,7 +22,7 @@
   <version>3.3.0</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.28</ver>
+    <ver>5.35</ver>
   </compatibility>
   <comments>For support, please contact project team on the forums. (http://forum.civicrm.org) or create a new issue on https://github.com/compucorp/uk.co.compucorp.civicrm.giftaid/issues
   </comments>
