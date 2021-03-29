@@ -11,6 +11,4 @@ CREATE TABLE IF NOT EXISTS `civicrm_civigiftaid_batchsettings` (
   PRIMARY KEY (`id`),
   CONSTRAINT FK_civicrm_civigiftaid_batchsettings_batch_id FOREIGN KEY (`batch_id`) REFERENCES `civicrm_batch` (`id`) ON DELETE CASCADE
 )
-  ENGINE = InnoDB
-  DEFAULT CHARACTER SET utf8
-  COLLATE utf8_unicode_ci;
+  ENGINE = InnoDB;
