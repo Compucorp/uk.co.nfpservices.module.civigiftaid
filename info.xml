@@ -18,8 +18,8 @@
     <author>Erawat Chamanont, Jamie Novick, Guanhuan Chen, Robin Mitra</author>
     <email>jamie@compucorp.co.uk</email>
   </maintainer>
-  <releaseDate>2021-03-25</releaseDate>
-  <version>3.3.0</version>
+  <releaseDate>2021-03-30</releaseDate>
+  <version>3.3.1</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>5.35</ver>
